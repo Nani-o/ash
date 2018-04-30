@@ -20,6 +20,7 @@ try:
 except ImportError:
     from ordereddict import OrderedDict
 import os
+import shlex
 import tempfile
 import textwrap
 
@@ -145,7 +146,7 @@ class Ash(object):
         if not self.buffer:
             print "Argument missing"
             return
-        self.arguments = self.buffer
+        self.arguments = shlex.split(self.buffer)
 
     def play(self):
       """Play ansible run based on the parameters supplied"""
@@ -158,7 +159,7 @@ class Ash(object):
         print("Please select a module or playbook to use")
         return
 
-      print("Executing : " + ' '.join([('"' + x + '"' if ' ' in x else x) for x in self.helper.args]))
+      print("Executing : " + ' '.join([('"' + x.replace('"', '\\') + '"' if ' ' in x else x) for x in self.helper.args]))
       self.helper.parse()
       self.helper.run()
 
@@ -180,7 +181,7 @@ class Ash(object):
         self.command.append("-a")
         self.command.append(self.module_args)
       if self.arguments:
-        self.command.append(self.arguments)
+        self.command += self.arguments
       self.command.append(self.hosts)
       return self.command
 
@@ -188,7 +189,7 @@ class Ash(object):
       """Use parameters to generate an Ansible playbook command"""
       self.command = ["ansible-playbook", self.action]
       if self.arguments:
-        self.command.append(self.arguments)
+        self.command += self.arguments
       if self.hosts:
         self.command.append("-l")
         self.command.append(self.hosts)
