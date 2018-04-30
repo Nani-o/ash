@@ -113,12 +113,12 @@ class Ash(object):
             print "Argument missing"
             return
 
-	hosts = [x.name for x in self.inventory.list_hosts(self.buffer)]
-	if len(hosts) != 0:
-		print(str(len(hosts)) + " hosts matched")
-	        self.hosts = self.buffer
-	else:
-		print("No hosts matched")
+        hosts = [x.name for x in self.inventory.list_hosts(self.buffer)]
+        if len(hosts) != 0:
+          print(str(len(hosts)) + " hosts matched")
+          self.hosts = self.buffer
+        else:
+          print("No hosts matched")
 
     def module(self):
         """Set the module to use"""
@@ -150,9 +150,10 @@ class Ash(object):
     def play(self):
       """Play ansible run based on the parameters supplied"""
       self.load_helper()
-      print("Executing : " + ' '.join([('"' + x + '"' if ' ' in x else x) for x in self.helper.args]))
-      self.helper.parse()
-      self.helper.run()
+      if self.helper:
+        print("Executing : " + ' '.join([('"' + x + '"' if ' ' in x else x) for x in self.helper.args]))
+        self.helper.parse()
+        self.helper.run()
 
     def load_helper(self):
       """Load the desired command into the right helper"""
@@ -164,6 +165,7 @@ class Ash(object):
         self.helper = self.ansible_playbook_helper
       else:
         print("Please select a module or playbook to use")
+        self.helper = None
 
     def _generate_adhoc_command(self):
       """Use parameters to generate an Ansible adhoc command"""
@@ -185,38 +187,6 @@ class Ash(object):
         self.command.append("-l")
         self.command.append(self.hosts)
       return self.command
-
-#    def play(self):
-#         """Play ansible run based on the parameters supplied"""
-#         if self.buffer:
-#             print "No argument needed"
-#             return
-#         if self.method == "module" and self.action:
-#             if self.hosts:
-#                 helper = self.ansible_adhoc_helper
-#                 args = ['ansible', '-m', self.action]
-#             else:
-#                 print "Specify host"
-#         elif self.method == "playbook" and self.action:
-#             if self.hosts:
-#                 helper = self.ansible_playbook_helper
-#                 args = ['ansible-playbook', self.action,
-#             else:
-# 
-#         if self.hosts and self.method and self.action:
-#             if self.method == "module":
-#                 helper = self.ansible_adhoc_helper
-#                 args = ['ansible', '-m', self.action]
-#             elif method == "playbook":
-#                 helper = self.ansible_playbook_helper
-#                 args = ['ansible-playbook', self.action]
-# #                self.execution.execute_ansible(method=self.method, action=self.action, module_args=self.module_args, args=self.arguments, host=self.hosts)
-# 
-#             args = ['-a', self.module_args, self.hosts]
-#             helper.parse()
-#             helper.run()
-#         else:
-#             print "Missing parameters"
 
     def set(self):
         """Set configurations in-memory or permanently"""
