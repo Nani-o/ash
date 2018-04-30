@@ -159,7 +159,7 @@ class Ash(object):
         print("Please select a module or playbook to use")
         return
 
-      print("Executing : " + ' '.join([('"' + x.replace('"', '\\') + '"' if ' ' in x else x) for x in self.helper.args]))
+      print("Executing : " + ' '.join([('"' + x.replace('"', '\\"') + '"' if ' ' in x else x) for x in self.helper.args]))
       self.helper.parse()
       self.helper.run()
 
