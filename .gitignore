@@ -1,0 +1,7 @@
+ignored/
+*.pyc
+.DS_Store
+*.yml
+*.tox
+*.cache
+*egg-info

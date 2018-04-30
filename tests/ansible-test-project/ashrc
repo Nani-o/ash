@@ -1,0 +1,6 @@
+---
+playbook_folders: 
+  - "/path/to/playbooks"
+
+test_key:
+  - "test_value"
