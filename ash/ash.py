@@ -78,13 +78,13 @@ class Ash(object):
         self.editor = os.environ['EDITOR']
         self.buffer = None
         self.is_shellmode = False
-
+        
+        self.helper = None
         self.ansible_adhoc_helper = AdHocCLI(['ansible', '--list-hosts', 'all'])
         self.ansible_playbook_helper = PlaybookCLI([])
         self.ansible_adhoc_helper.parse()
         self.loader, self.inventory, self.vm = self.ansible_adhoc_helper._play_prereqs(self.ansible_adhoc_helper.options)
 
-#        self.inventory = get_inventory()
         self.completer = AnsibleCompleter(self.inventory, ROOT_COMMANDS, LIST_COMMANDS, self.config_definitions, self.config)
         self.cli = Cli(self.get_prompt(), self.completer)
 
