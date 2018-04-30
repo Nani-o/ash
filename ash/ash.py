@@ -149,11 +149,18 @@ class Ash(object):
 
     def play(self):
       """Play ansible run based on the parameters supplied"""
+      if self.method == module and not self.hosts:
+        print("Please select a target")
+        return
+
       self.load_helper()
-      if self.helper:
-        print("Executing : " + ' '.join([('"' + x + '"' if ' ' in x else x) for x in self.helper.args]))
-        self.helper.parse()
-        self.helper.run()
+      if not self.helper:
+        print("Please select a module or playbook to use")
+        return
+
+      print("Executing : " + ' '.join([('"' + x + '"' if ' ' in x else x) for x in self.helper.args]))
+      self.helper.parse()
+      self.helper.run()
 
     def load_helper(self):
       """Load the desired command into the right helper"""
@@ -164,7 +171,6 @@ class Ash(object):
         self.ansible_playbook_helper.args = self._generate_playbook_command()
         self.helper = self.ansible_playbook_helper
       else:
-        print("Please select a module or playbook to use")
         self.helper = None
 
     def _generate_adhoc_command(self):
