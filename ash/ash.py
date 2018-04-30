@@ -149,7 +149,7 @@ class Ash(object):
 
     def play(self):
       """Play ansible run based on the parameters supplied"""
-      if self.method == module and not self.hosts:
+      if self.method == "module" and not self.hosts:
         print("Please select a target")
         return
 
