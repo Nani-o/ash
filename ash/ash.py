@@ -215,7 +215,8 @@ class Ash(object):
         if self.forks:
             self.command.append("-f")
             self.command.append(self.forks)
-        self.command += self.arguments
+        if self.arguments:
+            self.command += self.arguments
 
     def set_command(self):
         """Set configurations in-memory or permanently"""
