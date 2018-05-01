@@ -166,37 +166,37 @@ class Ash(object):
         self.arguments = shlex.split(self.buffer)
 
     def play(self):
-      """Play ansible run based on the parameters supplied"""
-      if self.method == "module" and not self.hosts:
-        print("Please select a target")
-        return
+        """Play ansible run based on the parameters supplied"""
+        if self.method == "module" and not self.hosts:
+            print("Please select a target")
+            return
 
-      self.load_helper()
-      if not self.helper:
-        print("Please select a module or playbook to use")
-        return
+        self.load_helper()
+        if not self.helper:
+            print("Please select a module or playbook to use")
+            return
 
-      print("Executing : " + ' '.join([('"' + x.replace('"', '\\"') + '"' if ' ' in x else x) for x in self.helper.args]))
-      self.helper.parse()
-      self.helper.run()
+        print("Executing : " + ' '.join([('"' + x.replace('"', '\\"') + '"' if ' ' in x else x) for x in self.helper.args]))
+        self.helper.parse()
+        self.helper.run()
 
     def load_helper(self):
-      """Load the desired command into the right helper"""
-      if self.method == "module":
-        self.ansible_adhoc_helper.args = self._generate_adhoc_command()
-        self.helper = self.ansible_adhoc_helper
-      elif self.method == "playbook":
-        self.ansible_playbook_helper.args = self._generate_playbook_command()
-        self.helper = self.ansible_playbook_helper
-      else:
-        self.helper = None
+        """Load the desired command into the right helper"""
+        if self.method == "module":
+            self.ansible_adhoc_helper.args = self._generate_adhoc_command()
+            self.helper = self.ansible_adhoc_helper
+        elif self.method == "playbook":
+            self.ansible_playbook_helper.args = self._generate_playbook_command()
+            self.helper = self.ansible_playbook_helper
+        else:
+            self.helper = None
 
     def _generate_adhoc_command(self):
         """Use parameters to generate an Ansible adhoc command"""
         self.command = ["ansible", "-m", self.action]
         if self.module_args:
-        self.command.append("-a")
-        self.command.append(self.module_args)
+            self.command.append("-a")
+            self.command.append(self.module_args)
         self._add_command_common_part()
         self.command.append(self.hosts)
         return self.command
