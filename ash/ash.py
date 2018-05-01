@@ -39,7 +39,7 @@ import textwrap
 ROOT_COMMANDS = OrderedDict([
     ('args', 'Command line arguments to pass'),
     ('exit', 'Quit program'),
-    ('forks', 'Set number of parrallel ansible processes'),
+    ('forksi', 'Set number of parrallel ansible processes'),
     ('list', 'List hosts targeted/in group/in inventory'),
     ('module', 'Choose a module to use'),
     ('play', 'Execute playbook or module on target'),
@@ -151,7 +151,7 @@ class Ash(object):
         self.action = shlex.split(self.buffer)
         self.module_args = None
 
-    def forks(self):
+    def forksi(self):
         """Set the forks parameter of ansible"""
         if not self.buffer:
             print "Argument missing"
