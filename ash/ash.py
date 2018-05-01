@@ -267,7 +267,7 @@ class Ash(object):
             if self.method and self.action:
                 if self.method == "playbook":
                     self.save_context()
-                    self.arguments = "--list-" + self.buffer
+                    self.arguments = ["--list-" + self.buffer]
                     self.buffer = None
                     self.play()
                     self.restore_context()
