@@ -73,7 +73,7 @@ class Ash(object):
         self.action = None
         self.module_args = None
         self.arguments = None
-        self.forks = None
+        self.forks_arg = None
         self.execution = Execution()
         self.config = Config()
         self.commands = ROOT_COMMANDS.keys()
@@ -118,7 +118,7 @@ class Ash(object):
         prompt.append(("> ", 'white'))
         return prompt
 
-    def target_command(self):
+    def target(self):
         """Set the hosts to target"""
         if not self.buffer:
             print "Argument missing"
@@ -131,7 +131,7 @@ class Ash(object):
         else:
           print("No hosts matched")
 
-    def module_command(self):
+    def module(self):
         """Set the module to use"""
         if not self.buffer:
             print "Argument missing"
@@ -142,7 +142,7 @@ class Ash(object):
         self.action = module_name
         self.module_args = module_args
 
-    def playbook_command(self):
+    def playbook(self):
         """Set the playbook to play"""
         if not self.buffer:
             print "Argument missing"
@@ -151,21 +151,21 @@ class Ash(object):
         self.action = shlex.split(self.buffer)
         self.module_args = None
 
-    def forks_command(self):
+    def forks(self):
         """Set the forks parameter of ansible"""
         if not self.buffer:
             print "Argument missing"
             return
-        self.forks = shlex.split(self.buffer)[0]
+        self.forks_arg = shlex.split(self.buffer)[0]
 
-    def args_command(self):
+    def args(self):
         """Set arguments to be passed to the ansible command line"""
         if not self.buffer:
             print "Argument missing"
             return
         self.arguments = shlex.split(self.buffer)
 
-    def play_command(self):
+    def play(self):
         """Play ansible run based on the parameters supplied"""
         if self.method == "module" and not self.hosts:
             print("Please select a target")
@@ -212,13 +212,13 @@ class Ash(object):
 
     def _add_command_common_part(self):
         """Return the command part not specific to adhoc or playbook"""
-        if self.forks:
+        if self.forks_arg:
             self.command.append("-f")
-            self.command.append(self.forks)
+            self.command.append(self.forks_arg)
         if self.arguments:
             self.command += self.arguments
 
-    def set_command(self):
+    def set(self):
         """Set configurations in-memory or permanently"""
         if not self.buffer:
             print "Argument missing"
@@ -251,7 +251,7 @@ class Ash(object):
 
         return temp_file_path
 
-    def list_command(self):
+    def list(self):
         """List groups and hosts"""
         if not self.buffer or self.buffer == "target":
             if self.hosts:
@@ -284,9 +284,6 @@ class Ash(object):
 
         print '\n'.join(list)
 
-    def reset_command(self):
-        self.reset()
-
     def reset(self):
         """Reset all parameters to None"""
         self.hosts = None
@@ -294,16 +291,13 @@ class Ash(object):
         self.action = None
         self.module_args = None
         self.arguments = None
-        self.forks = None
+        self.forks_arg = None
 
     def save_context(self):
         self.context = (self.method, self.action, self.module_args, self.arguments)
 
     def restore_context(self):
         self.method, self.action, self.module_args, self.arguments = self.context
-
-    def shellmode_command(self):
-        self.shellmode()
 
     def shellmode(self):
         if not self.is_shellmode and self.hosts:
@@ -341,7 +335,7 @@ class Ash(object):
             else:
                 self.cli.show_message("Command not found", "red")
 
-    def exit_command(self):
+    def exit(self):
         self.cli.exit()
 
     def run(self):
