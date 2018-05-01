@@ -17,7 +17,6 @@ except ImportError:
 
 from ansible.plugins.loader import module_loader
 from ansible.utils import plugin_docs
-# from ansible.utils import module_docs
 from ansible import constants as C
 
 class AnsibleCompleter(Completer):
@@ -38,11 +37,8 @@ class AnsibleCompleter(Completer):
 
         if in_path and not in_path.endswith('.ps1'):
             module_vars, a, _, _ = plugin_docs.get_docstring(in_path)
-#             module_vars, _, _ = module_docs.get_docstring(in_path)
         else:
             module_vars = None
-        # module_vars['options'].keys()
-        # module_vars['short_description']
         return module_vars
 
     def list_modules(self):
