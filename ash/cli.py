@@ -50,8 +50,8 @@ class Cli(object):
         self.style = style_from_dict(style_dict)
     
     def color_to_token(self, color):
-        if color in tokens.keys():
-            return tokens[color]["token"]
+        if color in self.tokens.keys():
+            return self.tokens[color]["token"]
         return Token
 
     def get_prompt_tokens(self, cli):
