@@ -52,7 +52,6 @@ class AnsibleCompleter(Completer):
         return modules
 
     def _find_modules_in_path(self, path):
-
         if os.path.isdir(path):
             for module in os.listdir(path):
                 if module.startswith('.'):
@@ -93,8 +92,15 @@ class AnsibleCompleter(Completer):
                         completions = [x + "=" for x in options if x.startswith(cur_word)]
                 else:
                     completions = [x for x in self.modules if x.startswith(cur_word)]
-
-            if len(word_list) == 2:
+            elif word_list[0] == "playbook" and "playbook_folders" in self.config.configurations:
+                files_list = []
+                for folder in self.config.configurations["playbook_folders"]:
+                    if os.path.isdir(folder):
+                        for root, dirs, files in os.walk(folder):
+                            if os.path.basename(root) not in ["group_vars", "hosts_vars"]:
+                                files_list += [os.path.join(root, file) for file in files if (file.endswith(".yml") or file.endswith(".yaml")) and (cur_word in os.path.join(root, file))]
+                completions = files_list
+            elif len(word_list) == 2:
                 if word_list[0] == "target":
                     matches = re.findall(r'([&|!|^]*)([^:!&]*)([:]*)', cur_word)
 
@@ -116,15 +122,6 @@ class AnsibleCompleter(Completer):
 
                 elif word_list[0] == "set":
                     completions = OrderedDict((key, value["description"]) for key, value in self.config_definitions.iteritems() if key.startswith(cur_word))
-
-                elif word_list[0] == "playbook" and "playbook_folders" in self.config.configurations:
-                    files_list = []
-                    for folder in self.config.configurations["playbook_folders"]:
-                        if os.path.isdir(folder):
-                            for root, dirs, files in os.walk(folder):
-                                if os.path.basename(root) not in ["group_vars", "hosts_vars"]:
-                                    files_list += [os.path.join(root, file) for file in files if (file.endswith(".yml") or file.endswith(".yaml")) and (cur_word in os.path.join(root, file))]
-                    completions = files_list
 
         if isinstance(completions, list):
             completions.sort()

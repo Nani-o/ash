@@ -138,7 +138,7 @@ class Ash(object):
             print "Argument missing"
             return
         self.method = "playbook"
-        self.action = self.buffer
+        self.action = shlex.split(self.buffer)
         self.module_args = None
 
     def args(self):
