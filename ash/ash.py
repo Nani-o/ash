@@ -39,6 +39,7 @@ import textwrap
 ROOT_COMMANDS = OrderedDict([
     ('args', 'Command line arguments to pass'),
     ('exit', 'Quit program'),
+    ('forks', 'Set number of parrallel ansible processes'),
     ('list', 'List hosts targeted/in group/in inventory'),
     ('module', 'Choose a module to use'),
     ('play', 'Execute playbook or module on target'),
@@ -72,6 +73,7 @@ class Ash(object):
         self.action = None
         self.module_args = None
         self.arguments = None
+        self.forks = None
         self.execution = Execution()
         self.config = Config()
         self.commands = ROOT_COMMANDS.keys()
@@ -149,8 +151,15 @@ class Ash(object):
         self.action = shlex.split(self.buffer)
         self.module_args = None
 
+    def forks(self):
+        """Set the forks parameter of ansible"""
+        if not self.buffer:
+            print "Argument missing"
+            return
+        self.forks = shlex.split(self.buffer)[0]
+
     def args(self):
-        """Set the module arguments or playbook extra-vars"""
+        """Set arguments to be passed to the ansible command line"""
         if not self.buffer:
             print "Argument missing"
             return
@@ -183,25 +192,30 @@ class Ash(object):
         self.helper = None
 
     def _generate_adhoc_command(self):
-      """Use parameters to generate an Ansible adhoc command"""
-      self.command = ["ansible", "-m", self.action]
-      if self.module_args:
+        """Use parameters to generate an Ansible adhoc command"""
+        self.command = ["ansible", "-m", self.action]
+        if self.module_args:
         self.command.append("-a")
         self.command.append(self.module_args)
-      if self.arguments:
-        self.command += self.arguments
-      self.command.append(self.hosts)
-      return self.command
+        self._add_command_common_part()
+        self.command.append(self.hosts)
+        return self.command
 
     def _generate_playbook_command(self):
-      """Use parameters to generate an Ansible playbook command"""
-      self.command = ["ansible-playbook"] + self.action
-      if self.arguments:
+        """Use parameters to generate an Ansible playbook command"""
+        self.command = ["ansible-playbook"] + self.action
+        self._add_command_common_part()
+        if self.hosts:
+            self.command.append("-l")
+            self.command.append(self.hosts)
+        return self.command
+
+    def _get_command_common_part(self):
+        """Return the command part not specific to adhoc or playbook"""
+        if self.forks:
+            self.command.append("-f")
+            self.command.append(self.forks)
         self.command += self.arguments
-      if self.hosts:
-        self.command.append("-l")
-        self.command.append(self.hosts)
-      return self.command
 
     def set(self):
         """Set configurations in-memory or permanently"""
@@ -276,6 +290,7 @@ class Ash(object):
         self.action = None
         self.module_args = None
         self.arguments = None
+        self.forks = None
 
     def save_context(self):
         self.context = (self.method, self.action, self.module_args, self.arguments)
