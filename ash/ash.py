@@ -100,8 +100,12 @@ class Ash(object):
         if self.is_shellmode:
             prompt.append(('shellmode ', 'red'))
         else:
-            if self.method != None and self.action != None:
-                prompt.append((self.method[0] + ":" + self.action + " ", 'yellow'))
+            if self.method == "module":
+                segment = self.method[0] + ":" + self.action + " "
+                prompt.append((segment, 'yellow'))
+            if self.method == "playbook":
+                segment = self.method[0] + ":" + ','.join(self.action) + " "
+                prompt.append((segment, 'yellow'))
             if self.arguments != None:
                 prompt.append(("a:ok ", 'red'))
 
@@ -187,7 +191,7 @@ class Ash(object):
 
     def _generate_playbook_command(self):
       """Use parameters to generate an Ansible playbook command"""
-      self.command = ["ansible-playbook", self.action]
+      self.command = ["ansible-playbook"] + self.action
       if self.arguments:
         self.command += self.arguments
       if self.hosts:
