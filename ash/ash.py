@@ -104,7 +104,11 @@ class Ash(object):
                 segment = self.method[0] + ":" + self.action + " "
                 prompt.append((segment, 'yellow'))
             if self.method == "playbook":
-                segment = self.method[0] + ":" + ','.join(self.action) + " "
+                if len(self.action) > 1:
+                    playbooks = ','.join([x.split('/')[-1] for x in self.action])
+                else:
+                    playbooks = self.action[0]
+                segment = self.method[0] + ":" + playbooks + " "
                 prompt.append((segment, 'yellow'))
             if self.arguments != None:
                 prompt.append(("a:ok ", 'red'))
