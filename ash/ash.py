@@ -326,7 +326,7 @@ class Ash(object):
             self.buffer = ' '.join(command.split(' ')[1:])
 
             if root_command in self.commands:
-                func = getattr(self, root_command + "_command")
+                func = getattr(self, root_command)
                 func()
             elif root_command == "pika":
                 path = os.path.dirname(os.path.realpath(__file__))
