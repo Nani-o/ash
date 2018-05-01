@@ -21,43 +21,50 @@ class Cli(object):
 
     def __init__(self, prompt_text, completer):
         self.prompt = prompt_text
-        self.style = style_from_dict({
-            # User input.
-            Token:          '#ffffff',
-            # Colors
-            Token.White:    '#ffffff',
-            Token.Cyan:     '#00ffff',
-            Token.Yellow:   '#ffff00',
-            Token.Red:      '#ff0000'
-        })
         self.completer = completer
         history_file_path = expanduser("~/.ash_history")
         self.history = FileHistory(history_file_path)
+        self.tokens = {
+            "white": {
+                "token": Token.White,
+                "hex":   '#ffffff'
+            },
+            "cyan": {
+                "token": Token.Cyan,
+                "hex":   '#00ffff'
+            },
+            "yellow": {
+                "token": Token.Yellow,
+                "hex":   '#ffff00'
+            },
+            "red": {
+                "token": Token.Red,
+                "hex":   '#ff0000'
+            }
+        }
+        # Getting a dict like {Token: hexcode} for style_from_dict
+        style_dict = {value["token"]: value["hex"] for (key, value) in self.tokens.iteritems()}
+        # Adding color for user input
+        style_dict[Token] = '#ffffff'
+        # Converting to prompt_toolkit style
+        self.style = style_from_dict(style_dict)
+    
+    def color_to_token(self, color):
+        if color in tokens.keys():
+            return tokens[color]["token"]
+        return Token
 
     def get_prompt_tokens(self, cli):
         result = []
-        for segment, color in self.prompt:
-            if color == "white":
-                result.append((Token.White, segment))
-            elif color == "cyan":
-                result.append((Token.Cyan, segment))
-            elif color == "yellow":
-                result.append((Token.Yellow, segment))
-            elif color == "red":
-                result.append((Token.Red, segment))
-
+        for segment, color in self.prompt:    
+            result.append((self.color_to_token(color), segment))
         return result
 
     def show_message(self, message, message_color):
-        tokens = []
-        if message_color == "red":
-            tokens.append((Token.Red, message))
-            tokens.append((Token.White, '\n'))
-        else:
-            print("This color does not exist")
-            return
-
-        print_tokens(tokens, style=self.style)
+        result = []
+        result.append((self.color_to_token(message_color), message))
+        result.append((Token.White, '\n'))
+        print_tokens(result, style=self.style)
 
     def show_prompt(self):
         while True:
