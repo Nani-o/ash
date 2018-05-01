@@ -210,7 +210,7 @@ class Ash(object):
             self.command.append(self.hosts)
         return self.command
 
-    def _get_command_common_part(self):
+    def _add_command_common_part(self):
         """Return the command part not specific to adhoc or playbook"""
         if self.forks:
             self.command.append("-f")
