@@ -39,7 +39,7 @@ import textwrap
 ROOT_COMMANDS = OrderedDict([
     ('args', 'Command line arguments to pass'),
     ('exit', 'Quit program'),
-    ('forksi', 'Set number of parrallel ansible processes'),
+    ('forks', 'Set number of parrallel ansible processes'),
     ('list', 'List hosts targeted/in group/in inventory'),
     ('module', 'Choose a module to use'),
     ('play', 'Execute playbook or module on target'),
@@ -118,7 +118,7 @@ class Ash(object):
         prompt.append(("> ", 'white'))
         return prompt
 
-    def target(self):
+    def target_command(self):
         """Set the hosts to target"""
         if not self.buffer:
             print "Argument missing"
@@ -131,7 +131,7 @@ class Ash(object):
         else:
           print("No hosts matched")
 
-    def module(self):
+    def module_command(self):
         """Set the module to use"""
         if not self.buffer:
             print "Argument missing"
@@ -142,7 +142,7 @@ class Ash(object):
         self.action = module_name
         self.module_args = module_args
 
-    def playbook(self):
+    def playbook_command(self):
         """Set the playbook to play"""
         if not self.buffer:
             print "Argument missing"
@@ -151,21 +151,21 @@ class Ash(object):
         self.action = shlex.split(self.buffer)
         self.module_args = None
 
-    def forksi(self):
+    def forks_command(self):
         """Set the forks parameter of ansible"""
         if not self.buffer:
             print "Argument missing"
             return
         self.forks = shlex.split(self.buffer)[0]
 
-    def args(self):
+    def args_command(self):
         """Set arguments to be passed to the ansible command line"""
         if not self.buffer:
             print "Argument missing"
             return
         self.arguments = shlex.split(self.buffer)
 
-    def play(self):
+    def play_command(self):
         """Play ansible run based on the parameters supplied"""
         if self.method == "module" and not self.hosts:
             print("Please select a target")
@@ -217,7 +217,7 @@ class Ash(object):
             self.command.append(self.forks)
         self.command += self.arguments
 
-    def set(self):
+    def set_command(self):
         """Set configurations in-memory or permanently"""
         if not self.buffer:
             print "Argument missing"
@@ -250,7 +250,7 @@ class Ash(object):
 
         return temp_file_path
 
-    def list(self):
+    def list_command(self):
         """List groups and hosts"""
         if not self.buffer or self.buffer == "target":
             if self.hosts:
@@ -283,6 +283,9 @@ class Ash(object):
 
         print '\n'.join(list)
 
+    def reset_command(self):
+        self.reset()
+
     def reset(self):
         """Reset all parameters to None"""
         self.hosts = None
@@ -297,6 +300,9 @@ class Ash(object):
 
     def restore_context(self):
         self.method, self.action, self.module_args, self.arguments = self.context
+
+    def shellmode_command(self):
+        self.shellmode()
 
     def shellmode(self):
         if not self.is_shellmode and self.hosts:
@@ -325,7 +331,7 @@ class Ash(object):
             self.buffer = ' '.join(command.split(' ')[1:])
 
             if root_command in self.commands:
-                func = getattr(self, root_command)
+                func = getattr(self, root_command + "_command")
                 func()
             elif root_command == "pika":
                 path = os.path.dirname(os.path.realpath(__file__))
@@ -334,7 +340,7 @@ class Ash(object):
             else:
                 self.cli.show_message("Command not found", "red")
 
-    def exit(self):
+    def exit_command(self):
         self.cli.exit()
 
     def run(self):
