@@ -16,6 +16,7 @@ except ImportError:
     from ordereddict import OrderedDict
 
 from ansible.plugins.loader import module_loader
+from ansible.utils import plugin_docs
 # from ansible.utils import module_docs
 from ansible import constants as C
 
