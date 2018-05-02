@@ -1,4 +1,6 @@
 ignored/
+build/
+dist/
 *.pyc
 .DS_Store
 *.yml
