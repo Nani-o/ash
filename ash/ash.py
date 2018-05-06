@@ -186,9 +186,10 @@ class Ash(object):
         message = 'Executing : {}'.format(self.get_printable_command())
         self.cli.show_message(message, "white")
 
-        self.helper.parse()
+        # self.helper.parse()
         try:
-            self.helper.run()
+            # self.helper.run()
+            self.execution.execute_command(self.helper.args, True, False)
         except KeyboardInterrupt:
             message = "User interrupted execution"
             self.cli.show_message(message, "red")
