@@ -40,6 +40,10 @@ class Cli(object):
             "red": {
                 "token": Token.Red,
                 "hex":   '#ff0000'
+            },
+            "green": {
+                "token": Token.Green,
+                "hex":   '#00ff00'
             }
         }
         # Getting a dict like {Token: hexcode} for style_from_dict
