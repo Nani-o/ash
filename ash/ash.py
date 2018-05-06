@@ -79,7 +79,7 @@ class Ash(object):
         )
         self.cli = Cli(self.get_prompt(), self.completer)
 
-    def _get_helper_objects(self):
+    def _get_inventory(self):
         """Use the Ansible framework to return an inventory object"""
         helper = AdHocCLI(['ansible', '--list-hosts', 'all'])
         helper.parse()
@@ -119,7 +119,7 @@ class Ash(object):
         if not self.buffer:
             print "Argument missing"
             return
-        
+
         hosts = [x.name for x in self.inventory.list_hosts(self.buffer)]
         if len(hosts) != 0:
             print(str(len(hosts)) + " hosts matched")
@@ -174,9 +174,22 @@ class Ash(object):
 
         self.load_helper()
 
-        print("Executing : " + ' '.join([('"' + x.replace('"', '\\"') + '"' if ' ' in x else x) for x in self.helper.args]))
+        message = 'Executing : {}'.format(self.get_printable_command())
+        self.cli.show_message(message, cyan)
+
         self.helper.parse()
         self.helper.run()
+
+    def get_printable_command():
+        """Return the command to run in a shell with current parameters"""
+        command = []
+        for segment in self.helper.args:
+            if ' ' in segment:
+                escaped_segment = '"{}"'.format(segment.replace('"', '\\"'))
+                command.append(escaped_segment)
+            else:
+                command.append(segment)
+        return ' '.join(command)
 
     def load_helper(self):
         """Load the desired command into the right helper"""
