@@ -10,7 +10,8 @@ import pytest
 
 @pytest.fixture
 def completer():
-    return AnsibleCompleter(inventory=Ash._get_inventory(),
+    ash = Ash()
+    return AnsibleCompleter(inventory=ash.inventory,
         root_commands=ROOT_COMMANDS,
         list_commands=LIST_COMMANDS,
         config_definitions=CONFIGS_DEF,
