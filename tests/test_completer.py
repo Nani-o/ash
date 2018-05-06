@@ -1,6 +1,6 @@
 from __future__ import unicode_literals
 from ash.completer import AnsibleCompleter
-from ash.ash import _get_inventory, ROOT_COMMANDS, LIST_COMMANDS
+from ash.ash import Ash, ROOT_COMMANDS, LIST_COMMANDS
 from ash.configuration import Config, CONFIGS_DEF
 from prompt_toolkit.document import Document
 
@@ -10,7 +10,7 @@ import pytest
 
 @pytest.fixture
 def completer():
-    return AnsibleCompleter(inventory=_get_inventory(),
+    return AnsibleCompleter(inventory=Ash._get_inventory(),
         root_commands=ROOT_COMMANDS,
         list_commands=LIST_COMMANDS,
         config_definitions=CONFIGS_DEF,
