@@ -192,13 +192,14 @@ class Ash(object):
 
     def _to_printable_command(self, command):
         """Return the command to run in a shell with current parameters"""
+        result = []
         for segment in command:
             if ' ' in segment:
                 escaped_segment = '"{}"'.format(segment.replace('"', '\\"'))
-                command.append(escaped_segment)
+                result.append(escaped_segment)
             else:
-                command.append(segment)
-        return ' '.join(command)
+                result.append(segment)
+        return ' '.join(result)
 
     def get_command(self):
         """Return the command generated"""
