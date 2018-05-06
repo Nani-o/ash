@@ -174,7 +174,7 @@ class Ash(object):
 
         self.load_helper()
 
-        message = 'Executing : {}\n'.format(self.get_printable_command())
+        message = 'Executing : {}'.format(self.get_printable_command())
         self.cli.show_message(message, "green")
 
         self.helper.parse()
