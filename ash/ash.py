@@ -184,11 +184,7 @@ class Ash(object):
         message = 'Executing : {}'.format(printable_command)
         self.cli.show_message(message, "white")
 
-        try:
-            self.execution.execute_command(self.command, True, False)
-        except KeyboardInterrupt:
-            message = "User interrupted execution with ^C"
-            self.cli.show_message(message, "red")
+        self.execution.execute_command(self.command, True, False)
 
     def _to_printable_command(self, command):
         """Return the command to run in a shell with current parameters"""
