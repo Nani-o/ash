@@ -122,10 +122,13 @@ class Ash(object):
 
         hosts = [x.name for x in self.inventory.list_hosts(self.buffer)]
         if len(hosts) != 0:
-            print(str(len(hosts)) + " hosts matched")
+            message = '{} hosts matched'.format(str(len(hosts)))
+            color = "green"
             self.hosts = self.buffer
         else:
-            print("No hosts matched")
+            message = "No hosts matched"
+            color = "red"
+        self.cli.show_message(message, color)
 
     def module(self):
         """Set the module to use"""
@@ -175,7 +178,7 @@ class Ash(object):
         self.load_helper()
 
         message = 'Executing : {}'.format(self.get_printable_command())
-        self.cli.show_message(message, "green")
+        self.cli.show_message(message, "white")
 
         self.helper.parse()
         try:
