@@ -45,6 +45,7 @@ LIST_COMMANDS = OrderedDict([
     ('tags', 'List all tags of a playbooks')
 ])
 
+
 class Ash(object):
 
     """
@@ -66,22 +67,31 @@ class Ash(object):
         self.editor = os.environ['EDITOR']
         self.buffer = None
         self.is_shellmode = False
-        
-        self.helper = None
-        self.ansible_adhoc_helper = AdHocCLI(['ansible', '--list-hosts', 'all'])
-        self.ansible_playbook_helper = PlaybookCLI([])
-        self.ansible_adhoc_helper.parse()
-        self.loader, self.inventory, self.vm = self.ansible_adhoc_helper._play_prereqs(self.ansible_adhoc_helper.options)
 
-        self.completer = AnsibleCompleter(self.inventory, ROOT_COMMANDS, LIST_COMMANDS, self.config_definitions, self.config)
+        self.helper = None
+        self.ansible_adhoc_helper = AdHocCLI([])
+        self.ansible_playbook_helper = PlaybookCLI([])
+        self.inventory = self._get_inventory()
+
+        self.completer = AnsibleCompleter(
+            self.inventory, ROOT_COMMANDS, LIST_COMMANDS,
+            self.config_definitions, self.config
+        )
         self.cli = Cli(self.get_prompt(), self.completer)
+
+    def _get_helper_objects(self):
+        """Use the Ansible framework to return an inventory object"""
+        helper = AdHocCLI(['ansible', '--list-hosts', 'all'])
+        helper.parse()
+        loader, inventory, vm = helper._play_prereqs(helper.options)
+        return inventory
 
     def get_prompt(self):
         """Return the prompt to show to the user"""
         prompt = []
         prompt.append(('ash ', 'white'))
 
-        if self.hosts != None:
+        if self.hosts:
             prompt.append(("[" + self.hosts + "] ", 'cyan'))
 
         if self.is_shellmode:
@@ -92,12 +102,13 @@ class Ash(object):
                 prompt.append((segment, 'yellow'))
             if self.method == "playbook":
                 if len(self.action) > 1:
-                    playbooks = ','.join([x.split('/')[-1] for x in self.action])
+                    playbooks_list = [x.split('/')[-1] for x in self.action]
+                    playbooks = ','.join(playbooks_list)
                 else:
                     playbooks = self.action[0]
                 segment = self.method[0] + ":" + playbooks + " "
                 prompt.append((segment, 'yellow'))
-            if self.arguments != None:
+            if self.arguments:
                 prompt.append(("a:ok ", 'red'))
 
         prompt.append(("> ", 'white'))
@@ -108,13 +119,13 @@ class Ash(object):
         if not self.buffer:
             print "Argument missing"
             return
-
+        
         hosts = [x.name for x in self.inventory.list_hosts(self.buffer)]
         if len(hosts) != 0:
-          print(str(len(hosts)) + " hosts matched")
-          self.hosts = self.buffer
+            print(str(len(hosts)) + " hosts matched")
+            self.hosts = self.buffer
         else:
-          print("No hosts matched")
+            print("No hosts matched")
 
     def module(self):
         """Set the module to use"""
@@ -152,14 +163,16 @@ class Ash(object):
 
     def play(self):
         """Play ansible run based on the parameters supplied"""
+        if not self.method:
+            message = "Please select a module or playbook to use"
+            self.cli.show_message(message, "red")
+            return
         if self.method == "module" and not self.hosts:
-            print("Please select a target")
+            message = "Please select a target"
+            self.cli.show_message(message, "red")
             return
 
         self.load_helper()
-        if not self.helper:
-            print("Please select a module or playbook to use")
-            return
 
         print("Executing : " + ' '.join([('"' + x.replace('"', '\\"') + '"' if ' ' in x else x) for x in self.helper.args]))
         self.helper.parse()
@@ -168,13 +181,13 @@ class Ash(object):
     def load_helper(self):
         """Load the desired command into the right helper"""
         if self.method == "module":
-            self.ansible_adhoc_helper.args = self._generate_adhoc_command()
+            args = self._generate_adhoc_command()
             self.helper = self.ansible_adhoc_helper
         elif self.method == "playbook":
-            self.ansible_playbook_helper.args = self._generate_playbook_command()
+            args = self._generate_playbook_command()
             self.helper = self.ansible_playbook_helper
-        else:
-            self.helper = None
+
+        self.helper.args = args
 
     def _generate_adhoc_command(self):
         """Use parameters to generate an Ansible adhoc command"""
@@ -213,11 +226,14 @@ class Ash(object):
             return
 
         edit_file_path = self.configuration_tempfile_with_example(self.buffer)
+        command = [self.editor, edit_file_path]
 
-        self.execution.execute_command([self.editor, edit_file_path], True, False)
+        self.execution.execute_command(command, True, False)
 
-        new_value = self.config.get_variable_from_file(self.buffer, edit_file_path)
-        if new_value != None and isinstance(new_value, self.config_definitions[self.buffer]["type"]):
+        new_value = self.config.get_variable_from_file(self.buffer,
+                                                       edit_file_path)
+        type_to_check = self.config_definitions[self.buffer]["type"]
+        if new_value is not None and isinstance(new_value, type_to_check):
             self.config.configurations[self.buffer] = new_value
             print(self.buffer + " modified")
         else:
@@ -226,13 +242,19 @@ class Ash(object):
         os.remove(edit_file_path)
 
     def configuration_tempfile_with_example(self, variable):
-        """Return the path of a tempfile loaded with a commented configuration example"""
+        """Return the path of a tempfile loaded with a commented configuration
+        example
+        """
         file, temp_file_path = tempfile.mkstemp(prefix="ash-")
+        
+        content = '{}:\n\n'.format(variable)
+        content += '# Example : \n'
+        example = self.config_definitions[variable]["example"]
+        for line in textwrap.dedent(example).split('\n'):
+            content += '#    {}\n'.format(line)
 
         with open(temp_file_path, "w") as temp_file:
-            temp_file.write(self.buffer + ':')
-            temp_file.write('\n\n# Example : \n')
-            temp_file.write('#   ' + textwrap.dedent(self.config_definitions[self.buffer]["example"]).replace('\n', '\n#   '))
+            temp_file.write(content)
 
         return temp_file_path
 
@@ -279,10 +301,16 @@ class Ash(object):
         self.forks_arg = None
 
     def save_context(self):
-        self.context = (self.method, self.action, self.module_args, self.arguments)
+        self.context = (
+            self.method, self.action,
+            self.module_args, self.arguments
+        )
 
     def restore_context(self):
-        self.method, self.action, self.module_args, self.arguments = self.context
+        (self.method,
+         self.action,
+         self.module_args,
+         self.arguments) = self.context
 
     def shellmode(self):
         if not self.is_shellmode and self.hosts:
@@ -292,13 +320,17 @@ class Ash(object):
             self.is_shellmode = False
             self.restore_context()
         else:
-            self.cli.show_message("Select target before using shellmode", "red")
+            message = "Select target before using shellmode"
+            self.cli.show_message(message, "red")
 
     def exec_shellmode(self, command):
         if command == "shellmode":
             self.shellmode()
         else:
-            self.method, self.action, self.module_args, self.arguments = "module", "shell", command, None
+            self.method = "module"
+            self.action = "shell"
+            self.module_args = command
+            self.arguments = None
             self.play()
 
     def exec_command(self, command):
