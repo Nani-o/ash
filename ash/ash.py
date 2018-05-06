@@ -73,9 +73,6 @@ class Ash(object):
         self.buffer = None
         self.is_shellmode = False
 
-        self.helper = None
-        self.ansible_adhoc_helper = AdHocCLI([])
-        self.ansible_playbook_helper = PlaybookCLI([])
         self.inventory = self._get_inventory()
 
         self.completer = AnsibleCompleter(
@@ -181,23 +178,21 @@ class Ash(object):
             self.cli.show_message(message, "red")
             return
 
-        self.load_helper()
+        self.command = self.get_command()
 
-        message = 'Executing : {}'.format(self.get_printable_command())
+        printable_command = self._to_printable_command(self.command)
+        message = 'Executing : {}'.format(printable_command)
         self.cli.show_message(message, "white")
 
-        # self.helper.parse()
         try:
-            # self.helper.run()
-            self.execution.execute_command(self.helper.args, True, False)
+            self.execution.execute_command(self.command, True, False)
         except KeyboardInterrupt:
-            message = "User interrupted execution"
+            message = "User interrupted execution with ^C"
             self.cli.show_message(message, "red")
 
-    def get_printable_command(self):
+    def _to_printable_command(self, command):
         """Return the command to run in a shell with current parameters"""
-        command = []
-        for segment in self.helper.args:
+        for segment in command:
             if ' ' in segment:
                 escaped_segment = '"{}"'.format(segment.replace('"', '\\"'))
                 command.append(escaped_segment)
@@ -205,16 +200,14 @@ class Ash(object):
                 command.append(segment)
         return ' '.join(command)
 
-    def load_helper(self):
-        """Load the desired command into the right helper"""
+    def get_command(self):
+        """Return the command generated"""
         if self.method == "module":
-            args = self._generate_adhoc_command()
-            self.helper = self.ansible_adhoc_helper
+            command = self._generate_adhoc_command()
         elif self.method == "playbook":
-            args = self._generate_playbook_command()
-            self.helper = self.ansible_playbook_helper
+            command = self._generate_playbook_command()
 
-        self.helper.args = args
+        return command
 
     def _generate_adhoc_command(self):
         """Use parameters to generate an Ansible adhoc command"""
