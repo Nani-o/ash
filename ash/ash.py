@@ -174,11 +174,15 @@ class Ash(object):
 
         self.load_helper()
 
-        message = 'Executing : {}'.format(self.get_printable_command())
-        self.cli.show_message(message, "cyan")
+        message = 'Executing : {}\n'.format(self.get_printable_command())
+        self.cli.show_message(message, "green")
 
         self.helper.parse()
-        self.helper.run()
+        try:
+            self.helper.run()
+        except KeyboardInterrupt:
+            message = "User interrupted execution"
+            self.cli.show_message(message, "red")
 
     def get_printable_command(self):
         """Return the command to run in a shell with current parameters"""
