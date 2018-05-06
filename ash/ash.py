@@ -180,7 +180,7 @@ class Ash(object):
         self.helper.parse()
         self.helper.run()
 
-    def get_printable_command():
+    def get_printable_command(self):
         """Return the command to run in a shell with current parameters"""
         command = []
         for segment in self.helper.args:
