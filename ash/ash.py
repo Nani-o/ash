@@ -269,7 +269,7 @@ class Ash(object):
         example
         """
         file, temp_file_path = tempfile.mkstemp(prefix="ash-")
-        
+
         content = '{}:\n\n'.format(variable)
         content += '# Example : \n'
         example = self.config_definitions[variable]["example"]
