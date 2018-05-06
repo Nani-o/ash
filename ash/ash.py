@@ -8,13 +8,12 @@ from cli import Cli
 from execution import Execution
 from completer import AnsibleCompleter
 from configuration import Config
+from configuration import CONFIGS_DEF
 
-# from ansible.inventory import Inventory
 from ansible.cli.adhoc import AdHocCLI
 from ansible.cli.playbook import PlaybookCLI
-# from ansible.parsing.dataloader import DataLoader
-# from ansible.vars.manager import VariableManager
 from ansible.cli import CLI
+
 try:
     from collections import OrderedDict
 except ImportError:
@@ -23,18 +22,6 @@ import os
 import shlex
 import tempfile
 import textwrap
-
-# def get_inventory():
-#     parser = CLI.base_parser(vault_opts=True)
-#     options, options_args = parser.parse_args()
-#
-#     loader = DataLoader()
-#     if options.vault_password_file:
-#         # read vault_pass from a file
-#         vault_pass = CLI.read_vault_password_file(options.vault_password_file, loader=loader)
-#         loader.set_vault_password(vault_pass)
-#
-#     return Inventory(loader=loader, variable_manager=VariableManager())
 
 ROOT_COMMANDS = OrderedDict([
     ('args', 'Command line arguments to pass'),
@@ -57,8 +44,6 @@ LIST_COMMANDS = OrderedDict([
     ('tasks', 'List all tasks that would be executed'),
     ('tags', 'List all tags of a playbooks')
 ])
-
-from configuration import CONFIGS_DEF
 
 class Ash(object):
 
