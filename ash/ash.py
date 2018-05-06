@@ -132,8 +132,8 @@ class Ash(object):
             print "Argument missing"
             return
 
-        with suppress_stdout():
-            hosts = [x.name for x in self.inventory.list_hosts(self.buffer)]
+        hosts = [x.name for x in self.inventory.list_hosts(self.buffer)]
+
         if len(hosts) != 0:
             message = '{} hosts matched'.format(str(len(hosts)))
             color = "green"
