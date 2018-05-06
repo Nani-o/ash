@@ -119,7 +119,8 @@ class Ash(object):
     def target(self):
         """Set the hosts to target"""
         if not self.buffer:
-            print "Argument missing"
+            message = "Argument missing"
+            self.cli.show_message(message, "red")
             return
 
         hosts = [x.name for x in self.inventory.list_hosts(self.buffer)]
