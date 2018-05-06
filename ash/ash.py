@@ -66,7 +66,10 @@ class Ash(object):
         self.config = Config()
         self.commands = ROOT_COMMANDS.keys()
         self.config_definitions = CONFIGS_DEF
-        self.editor = os.environ['EDITOR']
+        try:
+            self.editor = os.environ['EDITOR']
+        except KeyError:
+            self.editor = "/usr/bin/vi"
         self.buffer = None
         self.is_shellmode = False
 
