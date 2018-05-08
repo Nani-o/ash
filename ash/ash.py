@@ -374,16 +374,13 @@ class Ash(object):
         if self.is_shellmode:
             self.exec_shellmode(command)
         else:
-            root_command = command.split(' ')[0].replace('-', '_')
+            root_command = command.split(' ')[0]
             self.buffer = ' '.join(command.split(' ')[1:])
 
             if root_command in self.commands:
+                root_command = root_command.replace('-', '_')
                 func = getattr(self, root_command)
                 func()
-            elif root_command == "pika":
-                path = os.path.dirname(os.path.realpath(__file__))
-                with open(os.path.join(path, "ash.ascii"), 'r') as fin:
-                    print fin.read()
             else:
                 self.cli.show_message("Command not found", "red")
 
