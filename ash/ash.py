@@ -28,6 +28,7 @@ from contextlib import contextmanager
 ROOT_COMMANDS = OrderedDict([
     ('args', 'Command line arguments to pass'),
     ('exit', 'Quit program'),
+    ('extra-vars', 'Set extra variables for the command line'),
     ('forks', 'Set number of parrallel ansible processes'),
     ('list', 'List hosts targeted/in group/in inventory'),
     ('module', 'Choose a module to use'),
@@ -61,7 +62,7 @@ class Ash(object):
         self.action = None
         self.module_args = None
         self.arguments = None
-        self.forks_arg = None
+        self.extra_cli = {}
         self.execution = Execution()
         self.config = Config()
         self.commands = ROOT_COMMANDS.keys()
@@ -159,7 +160,14 @@ class Ash(object):
         if not self.buffer:
             print "Argument missing"
             return
-        self.forks_arg = shlex.split(self.buffer)[0]
+        self.extra_cli["forks"] = shlex.split(self.buffer)[0]
+
+    def extra_vars(self):
+        """Set extra vars to be used for the play"""
+        if not self.buffer:
+            print "Argument missing"
+            return
+        self.extra_cli["extra-vars"] = self.buffer
 
     def args(self):
         """Set arguments to be passed to the ansible command line"""
@@ -228,9 +236,12 @@ class Ash(object):
 
     def _add_command_common_part(self):
         """Return the command part not specific to adhoc or playbook"""
-        if self.forks_arg:
+        if "forks" in self.extra_cli.keys():
             self.command.append("-f")
-            self.command.append(self.forks_arg)
+            self.command.append(self.extra_cli["forks"])
+        if "extra-vars" in self.extra_cli.keys():
+            self.command.append("--extra-vars")
+            self.command.append(self.extra_cli["extra-vars"])
         if self.arguments:
             self.command += self.arguments
 
@@ -322,7 +333,7 @@ class Ash(object):
         self.action = None
         self.module_args = None
         self.arguments = None
-        self.forks_arg = None
+        self.extra_cli = {}
 
     def save_context(self):
         self.context = (
@@ -363,7 +374,7 @@ class Ash(object):
         if self.is_shellmode:
             self.exec_shellmode(command)
         else:
-            root_command = command.split(' ')[0]
+            root_command = command.split(' ')[0].replace('-', '_')
             self.buffer = ' '.join(command.split(' ')[1:])
 
             if root_command in self.commands:
