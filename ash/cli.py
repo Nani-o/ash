@@ -14,9 +14,10 @@ from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 from os.path import expanduser
 import sys
 
+
 class Cli(object):
-    """
-    Class that handles the different interactions with user such as prompting user or show completions
+    """Class that handles the different interactions with user such as
+    prompting user or show completions
     """
 
     def __init__(self, prompt_text, completer):
@@ -47,12 +48,16 @@ class Cli(object):
             }
         }
         # Getting a dict like {Token: hexcode} for style_from_dict
-        style_dict = {value["token"]: value["hex"] for (key, value) in self.tokens.iteritems()}
+        style_dict = {
+            value["token"]: value["hex"]
+            for (key, value) 
+            in self.tokens.iteritems()
+        }
         # Adding color for user input
         style_dict[Token] = '#ffffff'
         # Converting to prompt_toolkit style
         self.style = style_from_dict(style_dict)
-    
+
     def color_to_token(self, color):
         if color in self.tokens.keys():
             return self.tokens[color]["token"]
@@ -60,7 +65,7 @@ class Cli(object):
 
     def get_prompt_tokens(self, cli):
         result = []
-        for segment, color in self.prompt:    
+        for segment, color in self.prompt:
             result.append((self.color_to_token(color), segment))
         return result
 
@@ -73,7 +78,13 @@ class Cli(object):
     def show_prompt(self):
         while True:
             try:
-                text = prompt(get_prompt_tokens=self.get_prompt_tokens, style=self.style, completer=self.completer, history=self.history, auto_suggest=AutoSuggestFromHistory())
+                text = prompt(
+                    get_prompt_tokens=self.get_prompt_tokens,
+                    style=self.style,
+                    completer=self.completer,
+                    history=self.history,
+                    auto_suggest=AutoSuggestFromHistory()
+                )
                 return text
             except EOFError:
                 self.exit()

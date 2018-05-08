@@ -44,8 +44,8 @@ class Config(object):
         config = self.load_yaml_file(self.config_file_path)
         config = dict(
             (key, value) for (key, value) in config.items()
-            if key in CONFIGS_DEF.keys() 
-                and isinstance(value, CONFIGS_DEF[key]["type"])
+            if key in CONFIGS_DEF.keys()
+            and isinstance(value, CONFIGS_DEF[key]["type"])
         )
         return config
 
