@@ -81,6 +81,7 @@ class AnsibleCompleter(Completer):
 
         completions = []
         word_list = cur_text.split(' ')
+        complete_playbook = "playbook_folders" in self.config.configurations
 
         if len(word_list) == 1:
             completions = OrderedDict(
@@ -105,8 +106,7 @@ class AnsibleCompleter(Completer):
                         in self.modules
                         if x.startswith(cur_word)
                     ]
-            elif word_list[0] == "playbook"
-                and "playbook_folders" in self.config.configurations:
+            elif word_list[0] == "playbook" and complete_playbook:
                 files_list = []
                 exclude_folders = [
                     "group_vars",
