@@ -281,7 +281,7 @@ class Ash(object):
         if not self.buffer or self.buffer == "target":
             if self.method == "playbook":
                 self.save_context()
-                self.arguments.append("--list-hosts")
+                self.arguments = ["--list-hosts"]
                 self.play()
                 self.restore_context()
             elif self.hosts:
