@@ -279,11 +279,15 @@ class Ash(object):
     def list(self):
         """List groups and hosts"""
         if not self.buffer or self.buffer == "target":
-            if self.hosts:
+            if self.method == "playbook":
+                self.save_context()
+                self.arguments.append("--list-hosts")
+                self.play()
+                self.restore_context()
+            elif self.hosts:
                 list = [x.name for x in self.inventory.list_hosts(self.hosts)]
             else:
                 print "No hosts targeted"
-                return
         elif self.buffer == "hosts":
             list = [x.name for x in self.inventory.list_hosts()]
         elif self.buffer == "groups":
