@@ -284,10 +284,12 @@ class Ash(object):
                 self.arguments = ["--list-hosts"]
                 self.play()
                 self.restore_context()
+                return
             elif self.hosts:
                 list = [x.name for x in self.inventory.list_hosts(self.hosts)]
             else:
                 print "No hosts targeted"
+                return
         elif self.buffer == "hosts":
             list = [x.name for x in self.inventory.list_hosts()]
         elif self.buffer == "groups":
