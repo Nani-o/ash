@@ -105,7 +105,8 @@ class AnsibleCompleter(Completer):
                         in self.modules
                         if x.startswith(cur_word)
                     ]
-            elif word_list[0] == "playbook" and "playbook_folders" in self.config.configurations:
+            elif word_list[0] == "playbook"
+                and "playbook_folders" in self.config.configurations:
                 files_list = []
                 exclude_folders = [
                     "group_vars",
