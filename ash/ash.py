@@ -193,7 +193,7 @@ class Ash(object):
         message = 'Executing : {}'.format(printable_command)
         self.cli.show_message(message, "white")
 
-        self.execution.execute_command(self.command, True, False)
+        self.execution.execute_command(self.command, True)
 
     def _to_printable_command(self, command):
         """Return the command to run in a shell with current parameters"""
@@ -257,7 +257,7 @@ class Ash(object):
         edit_file_path = self.configuration_tempfile_with_example(self.buffer)
         command = [self.editor, edit_file_path]
 
-        self.execution.execute_command(command, True, False)
+        self.execution.execute_command(command, True)
 
         new_value = self.config.get_variable_from_file(self.buffer,
                                                        edit_file_path)
