@@ -22,6 +22,7 @@ CONFIGS_DEF = {
     },
 }
 
+
 class Config(object):
     """
     Class that handles the loading of a configuration file
@@ -41,15 +42,16 @@ class Config(object):
 
     def load_config(self):
         config = self.load_yaml_file(self.config_file_path)
-
-        # python > 2.6
-        # config = {key: value for (key, value) in config.iteritems() if key in CONFIGS_DEF.keys() and isinstance(value, CONFIGS_DEF[key]["type"])}
-        config = dict((key, value) for (key, value) in config.items() if key in CONFIGS_DEF.keys() and isinstance(value, CONFIGS_DEF[key]["type"]))
+        config = dict(
+            (key, value) for (key, value) in config.items()
+            if key in CONFIGS_DEF.keys() 
+                and isinstance(value, CONFIGS_DEF[key]["type"])
+        )
         return config
 
     def get_variable_from_file(self, value, path):
         yaml_dict = self.load_yaml_file(path)
-        if yaml_dict != None:
+        if yaml_dict:
             if value in yaml_dict:
                 return yaml_dict[value]
         return None
