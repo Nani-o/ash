@@ -50,7 +50,7 @@ class Cli(object):
         # Getting a dict like {Token: hexcode} for style_from_dict
         style_dict = {
             value["token"]: value["hex"]
-            for (key, value) 
+            for (key, value)
             in self.tokens.iteritems()
         }
         # Adding color for user input

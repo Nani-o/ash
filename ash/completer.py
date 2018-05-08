@@ -19,8 +19,10 @@ from ansible.plugins.loader import module_loader
 from ansible.utils import plugin_docs
 from ansible import constants as C
 
+
 class AnsibleCompleter(Completer):
-    def __init__(self, inventory, root_commands, list_commands, config_definitions, config):
+    def __init__(self, inventory, root_commands,
+                 list_commands, config_definitions, config):
         self.inventory = inventory
         self.root_commands = root_commands
         self.list_commands = list_commands
@@ -65,12 +67,12 @@ class AnsibleCompleter(Completer):
                 elif module in C.IGNORE_FILES:
                     continue
                 elif module.startswith('_'):
-                    fullpath = '/'.join([path,module])
-                    if os.path.islink(fullpath): # avoids aliases
+                    fullpath = '/'.join([path, module])
+                    if os.path.islink(fullpath):  # avoids aliases
                         continue
                     module = module.replace('_', '', 1)
 
-                module = os.path.splitext(module)[0] # removes the extension
+                module = os.path.splitext(module)[0]  # removes the extension
                 yield module
 
     def get_completions(self, document, complete_event):
@@ -81,23 +83,39 @@ class AnsibleCompleter(Completer):
         word_list = cur_text.split(' ')
 
         if len(word_list) == 1:
-            completions = OrderedDict((key, value) for key, value in self.root_commands.iteritems() if key.startswith(cur_word))
-
+            completions = OrderedDict(
+                (key, value) for key, value
+                in self.root_commands.iteritems()
+                if key.startswith(cur_word)
+            )
         else:
             if word_list[0] == "module":
                 if len(word_list) >= 3:
                     meta = self.get_module_meta(word_list[1])
                     if meta:
                         options = meta['options']
-                        completions = [x + "=" for x in options if x.startswith(cur_word)]
+                        completions = [
+                            x + "=" for x
+                            in options
+                            if x.startswith(cur_word)
+                        ]
                 else:
-                    completions = [x for x in self.modules if x.startswith(cur_word)]
+                    completions = [
+                        x for x
+                        in self.modules
+                        if x.startswith(cur_word)
+                    ]
             elif word_list[0] == "playbook" and "playbook_folders" in self.config.configurations:
                 files_list = []
+                exclude_folders = [
+                    "group_vars",
+                    "host_vars",
+                    "roles"
+                ]
                 for folder in self.config.configurations["playbook_folders"]:
                     if os.path.isdir(folder):
                         for root, dirs, files in os.walk(folder):
-                            if os.path.basename(root) not in ["group_vars", "hosts_vars"]:
+                            if os.path.basename(root) not in exclude_folders:
                                 files_list += [
                                     os.path.join(root, file)
                                     for file in files
@@ -130,7 +148,7 @@ class AnsibleCompleter(Completer):
                     completions = [
                         string_before_cur_word + x for x
                         in self.hosts + self.groups
-                        if x.startswith(real_cur_word) 
+                        if x.startswith(real_cur_word)
                         and x not in [
                             y[1] for y
                             in matches
