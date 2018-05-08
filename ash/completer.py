@@ -98,30 +98,64 @@ class AnsibleCompleter(Completer):
                     if os.path.isdir(folder):
                         for root, dirs, files in os.walk(folder):
                             if os.path.basename(root) not in ["group_vars", "hosts_vars"]:
-                                files_list += [os.path.join(root, file) for file in files if (file.endswith(".yml") or file.endswith(".yaml")) and (cur_word in os.path.join(root, file))]
+                                files_list += [
+                                    os.path.join(root, file)
+                                    for file in files
+                                    if (
+                                        file.endswith(".yml")
+                                        or file.endswith(".yaml")
+                                    )
+                                    and (cur_word in os.path.join(root, file))
+                                ]
                 completions = files_list
             elif len(word_list) == 2:
                 if word_list[0] == "target":
-                    matches = re.findall(r'([&|!|^]*)([^:!&]*)([:]*)', cur_word)
+                    pattern = r'([&|!|^]*)([^:!&]*)([:]*)'
+                    matches = re.findall(pattern, cur_word)
 
                     if matches[len(matches)-2][2] == ':':
                         real_cur_word = ''
                     else:
                         real_cur_word = matches[len(matches)-2][1]
 
-                    string_before_cur_word = ''.join([''.join(x) for x in matches if x[2] == ':'])
+                    string_before_cur_word = ''.join([
+                        ''.join(x) for x
+                        in matches
+                        if x[2] == ':'
+                    ])
 
                     if matches[len(matches)-2][2] != ':':
                         string_before_cur_word += matches[len(matches)-2][0]
 
-                    completions = [string_before_cur_word + x for x in self.hosts + self.groups if x.startswith(real_cur_word) and x not in [y[1] for y in matches]]
+                    completions = [
+                        string_before_cur_word + x for x
+                        in self.hosts + self.groups
+                        if x.startswith(real_cur_word) 
+                        and x not in [
+                            y[1] for y
+                            in matches
+                        ]
+                    ]
 
                 elif word_list[0] == "list":
-                    completions = OrderedDict((key, value) for key, value in self.list_commands.iteritems() if key.startswith(cur_word))
-                    completions.update(OrderedDict((x, "A group from inventory") for x in self.groups if x.startswith(cur_word)))
+                    completions = OrderedDict(
+                        (key, value) for key, value
+                        in self.list_commands.iteritems()
+                        if key.startswith(cur_word)
+                    )
+                    update = OrderedDict(
+                        (x, "A group from inventory") for x
+                        in self.groups
+                        if x.startswith(cur_word)
+                    )
+                    completions.update(update)
 
                 elif word_list[0] == "set":
-                    completions = OrderedDict((key, value["description"]) for key, value in self.config_definitions.iteritems() if key.startswith(cur_word))
+                    completions = OrderedDict(
+                        (key, value["description"]) for key, value
+                        in self.config_definitions.iteritems()
+                        if key.startswith(cur_word)
+                    )
 
         if isinstance(completions, list):
             completions.sort()
