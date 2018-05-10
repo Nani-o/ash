@@ -75,6 +75,16 @@ class AnsibleCompleter(Completer):
                 module = os.path.splitext(module)[0]  # removes the extension
                 yield module
 
+    def _module_completion(self):
+        if len(self.word_list) >= 3:
+            module = self.word_list[1]
+            meta = self.get_module_meta(module)
+            if meta:
+                options = meta['options']
+                self.completions = self._match_input(self.cur_word, options)
+        else:
+            self.completions = self._match_input(self.cur_word, self.modules)
+
     def _match_input(self, input, struct):
         if isinstance(struct, dict):
             result = OrderedDict(
@@ -86,33 +96,18 @@ class AnsibleCompleter(Completer):
         return result
 
     def get_completions(self, document, complete_event):
-        cur_text = document.text_before_cursor
-        cur_word = document.get_word_before_cursor(WORD=True)
-
-        completions = []
-        word_list = cur_text.split(' ')
+        self.cur_text = document.text_before_cursor
+        self.cur_word = document.get_word_before_cursor(WORD=True)
+        self.word_list = self.cur_text.split(' ')
         complete_playbook = "playbook_folders" in self.config.configurations
+        self.completions = []
 
-        if len(word_list) == 1:
-            completions = self._match_input(cur_word, self.root_commands)
+        if len(self.word_list) == 1:
+            self.completions = self._match_input(self.cur_word, self.root_commands)
         else:
-            if word_list[0] == "module":
-                if len(word_list) >= 3:
-                    meta = self.get_module_meta(word_list[1])
-                    if meta:
-                        options = meta['options']
-                        completions = [
-                            x + "=" for x
-                            in options
-                            if x.startswith(cur_word)
-                        ]
-                else:
-                    completions = [
-                        x for x
-                        in self.modules
-                        if x.startswith(cur_word)
-                    ]
-            elif word_list[0] == "playbook" and complete_playbook:
+            if self.word_list[0] == "module":
+                self._module_completion()
+            elif self.word_list[0] == "playbook" and complete_playbook:
                 files_list = []
                 exclude_folders = [
                     "group_vars",
@@ -130,65 +125,65 @@ class AnsibleCompleter(Completer):
                                         file.endswith(".yml")
                                         or file.endswith(".yaml")
                                     )
-                                    and (cur_word in os.path.join(root, file))
+                                    and (self.cur_word in os.path.join(root, file))
                                 ]
-                completions = files_list
-            elif len(word_list) == 2:
-                if word_list[0] == "target":
+                self.completions = files_list
+            elif len(self.word_list) == 2:
+                if self.word_list[0] == "target":
                     pattern = r'([&|!|^]*)([^:!&]*)([:]*)'
-                    matches = re.findall(pattern, cur_word)
+                    matches = re.findall(pattern, self.cur_word)
 
                     if matches[len(matches)-2][2] == ':':
-                        real_cur_word = ''
+                        real_self.cur_word = ''
                     else:
-                        real_cur_word = matches[len(matches)-2][1]
+                        real_self.cur_word = matches[len(matches)-2][1]
 
-                    string_before_cur_word = ''.join([
+                    string_before_self.cur_word = ''.join([
                         ''.join(x) for x
                         in matches
                         if x[2] == ':'
                     ])
 
                     if matches[len(matches)-2][2] != ':':
-                        string_before_cur_word += matches[len(matches)-2][0]
+                        string_before_self.cur_word += matches[len(matches)-2][0]
 
-                    completions = [
-                        string_before_cur_word + x for x
+                    self.completions = [
+                        string_before_self.cur_word + x for x
                         in self.hosts + self.groups
-                        if x.startswith(real_cur_word)
+                        if x.startswith(real_self.cur_word)
                         and x not in [
                             y[1] for y
                             in matches
                         ]
                     ]
 
-                elif word_list[0] == "list":
-                    completions = OrderedDict(
+                elif self.word_list[0] == "list":
+                    self.completions = OrderedDict(
                         (key, value) for key, value
                         in self.list_commands.iteritems()
-                        if key.startswith(cur_word)
+                        if key.startswith(self.cur_word)
                     )
                     update = OrderedDict(
                         (x, "A group from inventory") for x
                         in self.groups
-                        if x.startswith(cur_word)
+                        if x.startswith(self.cur_word)
                     )
-                    completions.update(update)
+                    self.completions.update(update)
 
-                elif word_list[0] == "set":
-                    completions = OrderedDict(
+                elif self.word_list[0] == "set":
+                    self.completions = OrderedDict(
                         (key, value["description"]) for key, value
                         in self.config_definitions.iteritems()
-                        if key.startswith(cur_word)
+                        if key.startswith(self.cur_word)
                     )
 
-        if isinstance(completions, list):
-            completions.sort()
+        if isinstance(self.completions, list):
+            self.completions.sort()
 
-        for word in completions:
-            if isinstance(completions, dict):
-                meta = completions[word]
+        for word in self.completions:
+            if isinstance(self.completions, dict):
+                meta = self.completions[word]
             else:
                 meta = None
 
-            yield Completion(word, -len(cur_word), display_meta=meta)
+            yield Completion(word, -len(self.cur_word), display_meta=meta)
