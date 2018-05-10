@@ -139,17 +139,17 @@ class AnsibleCompleter(Completer):
                     else:
                         real_cur_word = matches[len(matches)-2][1]
 
-                    string_before_self.cur_word = ''.join([
+                    string_before_cur_word = ''.join([
                         ''.join(x) for x
                         in matches
                         if x[2] == ':'
                     ])
 
                     if matches[len(matches)-2][2] != ':':
-                        string_before_self.cur_word += matches[len(matches)-2][0]
+                        string_before_cur_word += matches[len(matches)-2][0]
 
                     self.completions = [
-                        string_before_self.cur_word + x for x
+                        string_before_cur_word + x for x
                         in self.hosts + self.groups
                         if x.startswith(real_cur_word)
                         and x not in [
