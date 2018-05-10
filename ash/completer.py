@@ -91,7 +91,7 @@ class AnsibleCompleter(Completer):
                 (key, value) for key, value
                 in struct.iteritems()
                 if key.startswith(input))
-        elif isinstance(struct, list):
+        elif isinstance(struct, list) or isinstance(struct, set):
             result = [x for x in struct if x.startswith(input)]
         return result
 
