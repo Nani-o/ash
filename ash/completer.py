@@ -75,6 +75,16 @@ class AnsibleCompleter(Completer):
                 module = os.path.splitext(module)[0]  # removes the extension
                 yield module
 
+    def _match_input(self, input, struct):
+        if isinstance(struct, dict):
+            result = OrderedDict(
+                (key, value) for key, value
+                in struct.iteritems()
+                if key.startswith(input))
+        elif isinstance(struct, list):
+            result = [x for x in struct if x.startswith(input)]
+        return result
+
     def get_completions(self, document, complete_event):
         cur_text = document.text_before_cursor
         cur_word = document.get_word_before_cursor(WORD=True)
@@ -84,11 +94,7 @@ class AnsibleCompleter(Completer):
         complete_playbook = "playbook_folders" in self.config.configurations
 
         if len(word_list) == 1:
-            completions = OrderedDict(
-                (key, value) for key, value
-                in self.root_commands.iteritems()
-                if key.startswith(cur_word)
-            )
+            completions = self._match_input(cur_word, self.root_commands)
         else:
             if word_list[0] == "module":
                 if len(word_list) >= 3:
