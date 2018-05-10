@@ -76,6 +76,7 @@ class AnsibleCompleter(Completer):
                 yield module
 
     def _module_completion(self):
+        """Retrieve module names and args for the module command completion"""
         if len(self.word_list) >= 3:
             module = self.word_list[1]
             meta = self.get_module_meta(module)
@@ -85,6 +86,29 @@ class AnsibleCompleter(Completer):
                 self.completions = [x + "=" for x in matched_options]
         else:
             self.completions = self._match_input(self.cur_word, self.modules)
+
+    def _playbook_completion(self):
+        """Retrieve file paths for the playbook command completion"""
+        files_list = []
+        exclude_folders = [
+            "group_vars",
+            "host_vars",
+            "roles"
+        ]
+        for folder in self.config.configurations["playbook_folders"]:
+            if os.path.isdir(folder):
+                for root, dirs, files in os.walk(folder):
+                    if os.path.basename(root) not in exclude_folders:
+                        files_list += [
+                            os.path.join(root, file)
+                            for file in files
+                            if (
+                                file.endswith(".yml")
+                                or file.endswith(".yaml")
+                            )
+                            and (self.cur_word in os.path.join(root, file))
+                        ]
+        self.completions = files_list
 
     def _match_input(self, input, struct):
         if isinstance(struct, dict):
@@ -109,26 +133,7 @@ class AnsibleCompleter(Completer):
             if self.word_list[0] == "module":
                 self._module_completion()
             elif self.word_list[0] == "playbook" and complete_playbook:
-                files_list = []
-                exclude_folders = [
-                    "group_vars",
-                    "host_vars",
-                    "roles"
-                ]
-                for folder in self.config.configurations["playbook_folders"]:
-                    if os.path.isdir(folder):
-                        for root, dirs, files in os.walk(folder):
-                            if os.path.basename(root) not in exclude_folders:
-                                files_list += [
-                                    os.path.join(root, file)
-                                    for file in files
-                                    if (
-                                        file.endswith(".yml")
-                                        or file.endswith(".yaml")
-                                    )
-                                    and (self.cur_word in os.path.join(root, file))
-                                ]
-                self.completions = files_list
+                self._playbook_completion()
             elif len(self.word_list) == 2:
                 if self.word_list[0] == "target":
                     pattern = r'([&|!|^]*)([^:!&]*)([:]*)'
