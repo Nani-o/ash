@@ -110,6 +110,35 @@ class AnsibleCompleter(Completer):
                         ]
         self.completions = files_list
 
+    def _target_completion(self):
+        """Retrieve informations from the inventory for target completion"""
+        pattern = r'([&|!|^]*)([^:!&]*)([:]*)'
+        matches = re.findall(pattern, self.cur_word)
+    
+        if matches[len(matches)-2][2] == ':':
+            real_cur_word = ''
+        else:
+            real_cur_word = matches[len(matches)-2][1]
+    
+        string_before_cur_word = ''.join([
+            ''.join(x) for x
+            in matches
+            if x[2] == ':'
+        ])
+    
+        if matches[len(matches)-2][2] != ':':
+            string_before_cur_word += matches[len(matches)-2][0]
+    
+        self.completions = [
+            string_before_cur_word + x for x
+            in self.hosts + self.groups
+            if x.startswith(real_cur_word)
+            and x not in [
+                y[1] for y
+                in matches
+            ]
+        ]
+
     def _match_input(self, input, struct):
         if isinstance(struct, dict):
             result = OrderedDict(
@@ -136,33 +165,7 @@ class AnsibleCompleter(Completer):
                 self._playbook_completion()
             elif len(self.word_list) == 2:
                 if self.word_list[0] == "target":
-                    pattern = r'([&|!|^]*)([^:!&]*)([:]*)'
-                    matches = re.findall(pattern, self.cur_word)
-
-                    if matches[len(matches)-2][2] == ':':
-                        real_cur_word = ''
-                    else:
-                        real_cur_word = matches[len(matches)-2][1]
-
-                    string_before_cur_word = ''.join([
-                        ''.join(x) for x
-                        in matches
-                        if x[2] == ':'
-                    ])
-
-                    if matches[len(matches)-2][2] != ':':
-                        string_before_cur_word += matches[len(matches)-2][0]
-
-                    self.completions = [
-                        string_before_cur_word + x for x
-                        in self.hosts + self.groups
-                        if x.startswith(real_cur_word)
-                        and x not in [
-                            y[1] for y
-                            in matches
-                        ]
-                    ]
-
+                    self._target_completion()
                 elif self.word_list[0] == "list":
                     self.completions = OrderedDict(
                         (key, value) for key, value
