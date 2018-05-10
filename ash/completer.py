@@ -139,6 +139,28 @@ class AnsibleCompleter(Completer):
             ]
         ]
 
+    def _list_completion(self):
+        """Retrieve elements for the list command completion"""
+        self.completions = OrderedDict(
+            (key, value) for key, value
+            in self.list_commands.iteritems()
+            if key.startswith(self.cur_word)
+        )
+        update = OrderedDict(
+            (x, "A group from inventory") for x
+            in self.groups
+            if x.startswith(self.cur_word)
+        )
+        self.completions.update(update)
+
+    def _set_completion(self):
+        """Retrieve configuration variables for the set command completion"""
+        self.completions = OrderedDict(
+            (key, value["description"]) for key, value
+            in self.config_definitions.iteritems()
+            if key.startswith(self.cur_word)
+        )
+
     def _match_input(self, input, struct):
         if isinstance(struct, dict):
             result = OrderedDict(
@@ -167,24 +189,9 @@ class AnsibleCompleter(Completer):
                 if self.word_list[0] == "target":
                     self._target_completion()
                 elif self.word_list[0] == "list":
-                    self.completions = OrderedDict(
-                        (key, value) for key, value
-                        in self.list_commands.iteritems()
-                        if key.startswith(self.cur_word)
-                    )
-                    update = OrderedDict(
-                        (x, "A group from inventory") for x
-                        in self.groups
-                        if x.startswith(self.cur_word)
-                    )
-                    self.completions.update(update)
-
+                    self._list_completion()
                 elif self.word_list[0] == "set":
-                    self.completions = OrderedDict(
-                        (key, value["description"]) for key, value
-                        in self.config_definitions.iteritems()
-                        if key.startswith(self.cur_word)
-                    )
+                    self._set_completion()
 
         if isinstance(self.completions, list):
             self.completions.sort()
