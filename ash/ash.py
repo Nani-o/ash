@@ -118,6 +118,9 @@ class Ash(object):
         return prompt
 
     def target(self):
+        print(type(self.completer.modules))
+        print(self.completer.modules)
+        return
         """Set the hosts to target"""
         if not self.buffer:
             message = "Argument missing"
