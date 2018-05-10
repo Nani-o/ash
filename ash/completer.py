@@ -81,7 +81,8 @@ class AnsibleCompleter(Completer):
             meta = self.get_module_meta(module)
             if meta:
                 options = meta['options']
-                self.completions = self._match_input(self.cur_word, options)
+                matched_options = self._match_input(self.cur_word, options)
+                self.completions = [x + "=" for x in matched_options]
         else:
             self.completions = self._match_input(self.cur_word, self.modules)
 
