@@ -101,7 +101,8 @@ class AnsibleCompleter(Completer):
         self.word_list = self.cur_text.split(' ')
         complete_playbook = "playbook_folders" in self.config.configurations
         self.completions = []
-
+        self.list_modules()
+        type(self.modules)
         if len(self.word_list) == 1:
             self.completions = self._match_input(self.cur_word, self.root_commands)
         else:
