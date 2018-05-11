@@ -20,7 +20,7 @@ def test_exec_command_target_matching(ash, capsys):
     command = "target localhust"
     ash.exec_command(command)
     out, err = capsys.readouterr()
-    print out
+    print(out)
     assert ash.hosts == None and out == "No hosts matched\n"
 
 def test_exec_command_module(ash):

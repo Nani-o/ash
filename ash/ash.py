@@ -138,7 +138,7 @@ class Ash(object):
     def module(self):
         """Set the module to use"""
         if not self.buffer:
-            print "Argument missing"
+            print("Argument missing")
             return
         self.method = "module"
         module_name = self.buffer.split()[0]
@@ -149,7 +149,7 @@ class Ash(object):
     def playbook(self):
         """Set the playbook to play"""
         if not self.buffer:
-            print "Argument missing"
+            print("Argument missing")
             return
         self.method = "playbook"
         self.action = shlex.split(self.buffer)
@@ -158,21 +158,21 @@ class Ash(object):
     def forks(self):
         """Set the forks parameter of ansible"""
         if not self.buffer:
-            print "Argument missing"
+            print("Argument missing")
             return
         self.extra_cli["forks"] = shlex.split(self.buffer)[0]
 
     def extra_vars(self):
         """Set extra vars to be used for the play"""
         if not self.buffer:
-            print "Argument missing"
+            print("Argument missing")
             return
         self.extra_cli["extra-vars"] = self.buffer
 
     def args(self):
         """Set arguments to be passed to the ansible command line"""
         if not self.buffer:
-            print "Argument missing"
+            print("Argument missing")
             return
         self.arguments = shlex.split(self.buffer)
 
@@ -248,10 +248,10 @@ class Ash(object):
     def set(self):
         """Set configurations in-memory or permanently"""
         if not self.buffer:
-            print "Argument missing"
+            print("Argument missing")
             return
         elif self.buffer not in self.config_definitions.keys():
-            print self.buffer + " is not a configuration variable"
+            print(self.buffer + " is not a configuration variable")
             return
 
         edit_file_path = self.configuration_tempfile_with_example(self.buffer)
@@ -299,7 +299,7 @@ class Ash(object):
             elif self.hosts:
                 list = [x.name for x in self.inventory.list_hosts(self.hosts)]
             else:
-                print "No hosts targeted"
+                print("No hosts targeted")
                 return
         elif self.buffer == "hosts":
             list = [x.name for x in self.inventory.list_hosts()]
@@ -314,9 +314,9 @@ class Ash(object):
                     self.play()
                     self.restore_context()
                 else:
-                    print "No such option for modules"
+                    print("No such option for modules")
             else:
-                print "You must select a target and a playbook"
+                print("You must select a target and a playbook")
             return
         elif self.buffer in self.inventory.list_groups():
             list = [x.name for x in self.inventory.list_hosts(self.buffer)]
@@ -324,7 +324,7 @@ class Ash(object):
             print("Not such option : " + self.buffer)
             return
 
-        print '\n'.join(list)
+        print('\n'.join(list))
 
     def reset(self):
         """Reset all parameters to None"""
