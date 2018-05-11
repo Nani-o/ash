@@ -15,7 +15,7 @@ try:
 except ImportError:
     from ordereddict import OrderedDict
 
-from ansible.plugins.loader import module_loader
+from ansible.plugins.loader import module_loader, fragment_loader
 from ansible.utils import plugin_docs
 from ansible import constants as C
 
@@ -38,7 +38,7 @@ class AnsibleCompleter(Completer):
         in_path = module_loader.find_plugin(module)
 
         if in_path and not in_path.endswith('.ps1'):
-            module_vars, a, _, _ = plugin_docs.get_docstring(in_path)
+            module_vars, a, _, _ = plugin_docs.get_docstring(in_path, fragment_loader)
         else:
             module_vars = None
         return module_vars
