@@ -4,7 +4,7 @@
 Main loop for the application
 """
 
-from ash import Ash
+from .ash import Ash
 
 
 def main():
