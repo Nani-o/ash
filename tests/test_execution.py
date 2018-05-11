@@ -7,19 +7,17 @@ def execution():
 
 def test_execution_command(execution):
     command = ["echo", "-n", "test_command"]
-    result = execution.execute_command(command, output_to_stdout=False, show_command_running=False)
+    result = execution.execute_command(command, False)
     assert result == "test_command"
 
-def test_execution_ansible_module(execution, capsys):
-    execution.execute_ansible(method="module",
-        action="ping",
-        host="localhost")
-    out, err = capsys.readouterr()
+def test_execution_ansible_module(execution, capfd):
+    command = ["ansible", "-m", "ping", "localhost"]
+    execution.execute_command(command)
+    out, err = capfd.readouterr()
     assert "localhost | SUCCESS =>" in out
 
-def test_execution_ansible_playbook(execution, playbook_file_test_project, capsys):
-    execution.execute_ansible(method="playbook",
-        action=playbook_file_test_project,
-        host="localhost")
-    out, err = capsys.readouterr()
+def test_execution_ansible_playbook(execution, playbook_file_test_project, capfd):
+    command = ["ansible-playbook", playbook_file_test_project]
+    execution.execute_command(command)
+    out, err = capfd.readouterr()
     assert "ok=2" in out

@@ -1,0 +1,6 @@
+---
+- hosts: localhost
+  strategy: debug
+  tasks:
+  - name: test
+    ping:

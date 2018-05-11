@@ -1,9 +1,9 @@
 ignored/
 build/
 dist/
-*.pyc
 .DS_Store
-*.yml
+*.pyc
 *.tox
 *.cache
+.pytest_cache
 *egg-info
