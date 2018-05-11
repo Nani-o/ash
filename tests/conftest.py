@@ -1,6 +1,8 @@
 import os
 import pytest
 
+from ash.configuration import Config
+
 @pytest.fixture(scope="module")
 def script_path():
     return os.path.realpath(__file__)
@@ -24,3 +26,7 @@ def playbook_folder_test_project():
 @pytest.fixture(scope="module")
 def playbook_file_test_project():
     return os.path.join(playbook_folder_test_project(), "ping.yml")
+
+@pytest.fixture
+def config(ashrc_test_file):
+    return Config(ashrc_test_file)
