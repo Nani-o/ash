@@ -4,11 +4,11 @@
 Ash class file
 
 """
-from cli import Cli
-from execution import Execution
-from completer import AnsibleCompleter
-from configuration import Config
-from configuration import CONFIGS_DEF
+from ash.cli import Cli
+from ash.execution import Execution
+from ash.completer import AnsibleCompleter
+from ash.configuration import Config
+from ash.configuration import CONFIGS_DEF
 
 from ansible.cli.adhoc import AdHocCLI
 from ansible.cli.playbook import PlaybookCLI
