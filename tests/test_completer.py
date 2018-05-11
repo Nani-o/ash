@@ -33,7 +33,7 @@ def get_completions(completer, text, complete_event):
 #     assert result == set([Completion(text="G@rBag3", start_position=-2, display_meta=None)])
 
 def test_root_command_completion_with_meta(completer, complete_event):
-    text = "ex"
+    text = "exi"
     result = get_completions(completer, text, complete_event)
     assert set((x.text, x.display_meta) for x in result) == set([('exit', 'Quit program')])
 
