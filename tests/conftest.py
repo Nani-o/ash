@@ -1,7 +1,9 @@
 import os
 import pytest
 
-from ash.configuration import Config
+from ash.ash import Ash, ROOT_COMMANDS, LIST_COMMANDS
+from ash.configuration import Config, CONFIGS_DEF
+from ash.completer import AnsibleCompleter
 
 @pytest.fixture(scope="module")
 def script_path():
@@ -20,6 +22,10 @@ def ashrc_test_file():
     return os.path.join(ansible_test_project(), "ashrc")
 
 @pytest.fixture(scope="module")
+def ansible_inventory_test_file():
+    return os.path.join(ansible_test_project(), "hosts")
+
+@pytest.fixture(scope="module")
 def playbook_folder_test_project():
     return os.path.join(ansible_test_project(), "playbooks")
 
@@ -30,3 +36,24 @@ def playbook_file_test_project():
 @pytest.fixture
 def config(ashrc_test_file):
     return Config(ashrc_test_file)
+
+@pytest.fixture
+def ash():
+    return Ash()
+
+@pytest.fixture
+def inventory(ash, ansible_inventory_test_file):
+    return ash._get_inventory(ansible_inventory_test_file)
+
+@pytest.fixture
+def completer(inventory, config):
+    return AnsibleCompleter(inventory=inventory,
+        root_commands=ROOT_COMMANDS,
+        list_commands=LIST_COMMANDS,
+        config_definitions=CONFIGS_DEF,
+        config=config)
+
+@pytest.fixture(scope="module")
+def complete_event():
+    from mock import Mock
+    return Mock()

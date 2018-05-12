@@ -1,26 +1,10 @@
 from __future__ import unicode_literals
 from ash.completer import AnsibleCompleter
-from ash.ash import Ash, ROOT_COMMANDS, LIST_COMMANDS
-from ash.configuration import Config, CONFIGS_DEF
 from prompt_toolkit.document import Document
 
 from prompt_toolkit.completion import Completion
 
 import pytest
-
-@pytest.fixture
-def completer():
-    ash = Ash()
-    return AnsibleCompleter(inventory=ash.inventory,
-        root_commands=ROOT_COMMANDS,
-        list_commands=LIST_COMMANDS,
-        config_definitions=CONFIGS_DEF,
-        config=Config())
-
-@pytest.fixture
-def complete_event():
-    from mock import Mock
-    return Mock()
 
 def get_completions(completer, text, complete_event):
     position = len(text)
@@ -66,23 +50,3 @@ def test_target_command_completion(completer, complete_event):
     text = "target local"
     result = get_completions(completer, text, complete_event)
     assert set(x.text for x in result) == set(['localhost'])
-
-
-# ROOT_COMMANDS = OrderedDict([
-#     ('list', 'List hosts targeted/in group/in inventory'),
-#     ('module', 'Choose a module to use'),
-#     ('play', 'Execute playbook or module on target'),
-#     ('playbook', 'Choose a playbook to use'),
-#     ('set', 'Set configurations in-memory'),
-#     ('reset', 'Remove all arguments set'),
-#     ('shellmode', 'Enter shell commands directly on target'),
-#     ('target', 'Target an Ansible host or group')
-# ])
-
-# LIST_COMMANDS = OrderedDict([
-#     ('hosts', 'List all hosts from inventory'),
-#     ('groups', 'List all groups from inventory'),
-#     ('target', 'List all targeted hosts'),
-#     ('tasks', 'List all tasks that would be executed'),
-#     ('tags', 'List all tags of a playbooks')
-# ])

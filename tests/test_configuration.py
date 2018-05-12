@@ -1,5 +1,4 @@
 from __future__ import unicode_literals
-from ash.configuration import Config
 import pytest
 
 def test_config_item_from_file(config):
