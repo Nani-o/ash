@@ -36,10 +36,12 @@ def test_module_args_command_completion(completer, complete_event):
     result = get_completions(completer, text, complete_event)
     assert set(x.text for x in result) == set(['name='])
 
-# def test_playbook_command_completion(completer, complete_event):
-#     text = "playbook pin"
-#     result = get_completions(completer, text, complete_event)
-#     assert set(x.text for x in result) == set(['target'])
+def test_playbook_command_completion(completer, complete_event, config, playbook_folder_test_project):
+    text = "playbook pin"
+    config.configurations["playbook_folders"] = [playbook_folder_test_project]
+    result = get_completions(completer, text, complete_event)
+    result = next(iter(result)).text
+    assert '/ping.yml' in result
 
 def test_set_command_completion(completer, complete_event):
     text = "set playbook_fo"

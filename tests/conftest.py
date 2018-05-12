@@ -33,11 +33,11 @@ def playbook_folder_test_project():
 def playbook_file_test_project():
     return os.path.join(playbook_folder_test_project(), "ping.yml")
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def config(ashrc_test_file):
     return Config(ashrc_test_file)
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def ash():
     return Ash()
 
