@@ -82,9 +82,11 @@ class Ash(object):
         )
         self.cli = Cli(self.get_prompt(), self.completer)
 
-    def _get_inventory(self):
+    def _get_inventory(self, inventory_path=None):
         """Use the Ansible framework to return an inventory object"""
         helper = AdHocCLI(['ansible', '--list-hosts', 'all'])
+        if inventory_path:
+            helper.args += ['-i', inventory_path]
         helper.parse()
         loader, inventory, vm = helper._play_prereqs(helper.options)
         return inventory
