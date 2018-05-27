@@ -43,7 +43,7 @@ def ash():
 
 @pytest.fixture
 def inventory(ash, ansible_inventory_test_file):
-    return ash._get_inventory(ansible_inventory_test_file)
+    return ash.ansible_helper._get_inventory(ansible_inventory_test_file)
 
 @pytest.fixture
 def completer(inventory, config):

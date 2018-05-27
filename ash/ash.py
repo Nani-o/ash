@@ -9,10 +9,7 @@ from .execution import Execution
 from .completer import AnsibleCompleter
 from .configuration import Config
 from .configuration import CONFIGS_DEF
-
-from ansible.cli.adhoc import AdHocCLI
-from ansible.cli.playbook import PlaybookCLI
-from ansible.cli import CLI
+from .helper import AnsibleHelper
 
 try:
     from collections import OrderedDict
@@ -74,22 +71,14 @@ class Ash(object):
         self.buffer = None
         self.is_shellmode = False
 
-        self.inventory = self._get_inventory()
+        self.ansible_helper = AnsibleHelper()
+        self.inventory = self.ansible_helper.inventory
 
         self.completer = AnsibleCompleter(
             self.inventory, ROOT_COMMANDS, LIST_COMMANDS,
             self.config_definitions, self.config
         )
         self.cli = Cli(self.get_prompt(), self.completer)
-
-    def _get_inventory(self, inventory_path=None):
-        """Use the Ansible framework to return an inventory object"""
-        helper = AdHocCLI(['ansible', '--list-hosts', 'all'])
-        if inventory_path:
-            helper.args += ['-i', inventory_path]
-        helper.parse()
-        loader, inventory, vm = helper._play_prereqs(helper.options)
-        return inventory
 
     def get_prompt(self):
         """Return the prompt to show to the user"""
@@ -177,6 +166,13 @@ class Ash(object):
             print("Argument missing")
             return
         self.arguments = shlex.split(self.buffer)
+
+#    def config(self):
+#        """Set the path to the ansible.cfg to use"""
+#        if not self.buffer:
+#            print("Argument missing")
+#            return
+#        self. = shlex.split(self.buffer)
 
     def play(self):
         """Play ansible run based on the parameters supplied"""
