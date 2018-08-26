@@ -3,13 +3,14 @@
 """
 Cli class file
 """
+from __future__ import unicode_literals
 
-from prompt_toolkit import prompt
-from prompt_toolkit.styles import style_from_dict
-from prompt_toolkit.token import Token
-from prompt_toolkit.shortcuts import print_tokens
+from prompt_toolkit import PromptSession
+from prompt_toolkit.styles import Style
 from prompt_toolkit.history import FileHistory
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
+from prompt_toolkit import print_formatted_text
+from prompt_toolkit.formatted_text import FormattedText
 
 from os.path import expanduser
 import sys
@@ -25,64 +26,37 @@ class Cli(object):
         self.completer = completer
         history_file_path = expanduser("~/.ash_history")
         self.history = FileHistory(history_file_path)
-        self.tokens = {
-            "white": {
-                "token": Token.White,
-                "hex":   '#ffffff'
-            },
-            "cyan": {
-                "token": Token.Cyan,
-                "hex":   '#00ffff'
-            },
-            "yellow": {
-                "token": Token.Yellow,
-                "hex":   '#ffff00'
-            },
-            "red": {
-                "token": Token.Red,
-                "hex":   '#ff0000'
-            },
-            "green": {
-                "token": Token.Green,
-                "hex":   '#00ff00'
-            }
+        self.session = PromptSession(history=self.history)
+        self.colors = {
+            # Default
+            '':       '#ffffff',
+            # Defined colors
+            'white':  '#ffffff',
+            'cyan':   '#00ffff',
+            'yellow': '#ffff00',
+            'red':    '#ff0000',
+            'green':  '#00ff00',
         }
-        # Getting a dict like {Token: hexcode} for style_from_dict
-        style_dict = {
-            value["token"]: value["hex"]
-            for (key, value)
-            in self.tokens.iteritems()
-        }
-        # Adding color for user input
-        style_dict[Token] = '#ffffff'
-        # Converting to prompt_toolkit style
-        self.style = style_from_dict(style_dict)
+        self.style = Style.from_dict(self.colors)
 
-    def color_to_token(self, color):
-        if color in self.tokens.keys():
-            return self.tokens[color]["token"]
-        return Token
-
-    def get_prompt_tokens(self, cli):
+    def get_prompt_fragments(self):
         result = []
         for segment, color in self.prompt:
-            result.append((self.color_to_token(color), segment))
+            result.append(('class:' + color, segment.decode('utf-8')))
         return result
 
     def show_message(self, message, message_color):
-        result = []
-        result.append((self.color_to_token(message_color), message))
-        result.append((Token.White, '\n'))
-        print_tokens(result, style=self.style)
+        text = FormattedText([('class:' + message_color, message.decode('utf-8'))])
+        print_formatted_text(text, style=self.style)
 
     def show_prompt(self):
         while True:
             try:
-                text = prompt(
-                    get_prompt_tokens=self.get_prompt_tokens,
+                prompt_fragments = self.get_prompt_fragments()
+                text = self.session.prompt(
+                    prompt_fragments,
                     style=self.style,
                     completer=self.completer,
-                    history=self.history,
                     auto_suggest=AutoSuggestFromHistory()
                 )
                 return text

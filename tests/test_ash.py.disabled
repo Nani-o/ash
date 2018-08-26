@@ -2,7 +2,9 @@ from ash.ash import Ash
 import pytest
 
 @pytest.fixture
-def ash():
+def ash(mocker):
+    mocked_isatty = mocker.patch('ash.file.isatty')
+    mocked_isatty.return_value = True
     return Ash()
 
 def test_get_prompt(ash):

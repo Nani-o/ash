@@ -20,4 +20,4 @@ def test_execution_ansible_playbook(execution, playbook_file_test_project, capfd
     command = ["ansible-playbook", playbook_file_test_project]
     execution.execute_command(command)
     out, err = capfd.readouterr()
-    assert "ok=2" in out
+    assert "ok=1" in out

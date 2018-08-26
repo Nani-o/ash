@@ -4,7 +4,7 @@ Autocompletion example that displays the autocompletions like readline does by
 binding a custom handler to the Tab key.
 """
 
-from prompt_toolkit.contrib.completers import WordCompleter
+from prompt_toolkit.completion import WordCompleter
 from prompt_toolkit.completion import Completer, Completion
 
 import re
@@ -198,8 +198,8 @@ class AnsibleCompleter(Completer):
 
         for word in self.completions:
             if isinstance(self.completions, dict):
-                meta = self.completions[word]
+                meta = self.completions[word].decode('utf-8')
             else:
                 meta = None
 
-            yield Completion(word, -len(self.cur_word), display_meta=meta)
+            yield Completion(word.decode('utf-8'), -len(self.cur_word), display_meta=meta)

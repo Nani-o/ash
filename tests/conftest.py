@@ -4,6 +4,7 @@ import pytest
 from ash.ash import Ash, ROOT_COMMANDS, LIST_COMMANDS
 from ash.configuration import Config, CONFIGS_DEF
 from ash.completer import AnsibleCompleter
+from ash.helper import AnsibleHelper
 
 @pytest.fixture(scope="module")
 def script_path():
@@ -42,8 +43,13 @@ def ash():
     return Ash()
 
 @pytest.fixture
-def inventory(ash, ansible_inventory_test_file):
-    return ash.ansible_helper._get_inventory(ansible_inventory_test_file)
+def helper():
+    return AnsibleHelper()
+
+@pytest.fixture
+def inventory(helper, ansible_inventory_test_file):
+    helper._set_inventory(ansible_inventory_test_file)
+    return helper.inventory
 
 @pytest.fixture
 def completer(inventory, config):

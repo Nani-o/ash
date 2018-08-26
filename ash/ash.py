@@ -10,6 +10,7 @@ from .completer import AnsibleCompleter
 from .configuration import Config
 from .configuration import CONFIGS_DEF
 from .helper import AnsibleHelper
+from .helper import AnsibleCommand
 
 try:
     from collections import OrderedDict
@@ -185,63 +186,21 @@ class Ash(object):
             self.cli.show_message(message, "red")
             return
 
-        self.command = self.get_command()
+        command = self.get_command()
 
-        printable_command = self._to_printable_command(self.command)
-        message = 'Executing : {}'.format(printable_command)
+        message = 'Executing : {}'.format(command.printable_command)
         self.cli.show_message(message, "white")
 
-        self.execution.execute_command(self.command, True)
-
-    def _to_printable_command(self, command):
-        """Return the command to run in a shell with current parameters"""
-        result = []
-        for segment in command:
-            if ' ' in segment:
-                escaped_segment = '"{}"'.format(segment.replace('"', '\\"'))
-                result.append(escaped_segment)
-            else:
-                result.append(segment)
-        return ' '.join(result)
+        self.execution.execute_command(command.executable_command, True)
 
     def get_command(self):
         """Return the command generated"""
-        if self.method == "module":
-            command = self._generate_adhoc_command()
-        elif self.method == "playbook":
-            command = self._generate_playbook_command()
-
+        command = AnsibleCommand(
+            self.method, self.action, hosts=self.hosts, module_args=self.module_args,
+            forks=self.extra_cli["forks"], extra_vars=self.extra_cli["extra_vars"],
+            extra_args=self.arguments
+        )
         return command
-
-    def _generate_adhoc_command(self):
-        """Use parameters to generate an Ansible adhoc command"""
-        self.command = ["ansible", "-m", self.action]
-        if self.module_args:
-            self.command.append("-a")
-            self.command.append(self.module_args)
-        self._add_command_common_part()
-        self.command.append(self.hosts)
-        return self.command
-
-    def _generate_playbook_command(self):
-        """Use parameters to generate an Ansible playbook command"""
-        self.command = ["ansible-playbook"] + self.action
-        self._add_command_common_part()
-        if self.hosts:
-            self.command.append("-l")
-            self.command.append(self.hosts)
-        return self.command
-
-    def _add_command_common_part(self):
-        """Return the command part not specific to adhoc or playbook"""
-        if "forks" in self.extra_cli.keys():
-            self.command.append("-f")
-            self.command.append(self.extra_cli["forks"])
-        if "extra-vars" in self.extra_cli.keys():
-            self.command.append("--extra-vars")
-            self.command.append(self.extra_cli["extra-vars"])
-        if self.arguments:
-            self.command += self.arguments
 
     def set(self):
         """Set configurations in-memory or permanently"""
